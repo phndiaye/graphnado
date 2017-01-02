@@ -1,5 +1,3 @@
-import json
-
 import tornado.web
 from graphql import GraphQLSchema
 
@@ -17,7 +15,7 @@ class GraphQLHandler(tornado.web.RequestHandler):
 
     def prepare(self):
         if self.request.method.lower() not in GRAPHQL_SUPPORTED_METHODS:
-            self.send_error(
+            raise tornado.web.HTTPError(
                 status_code=405,
                 reason='GraphQL only supports GET and POST requests')
 
