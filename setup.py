@@ -23,6 +23,6 @@ setup(
     ],
     keywords='api graphql tornado relay',
     packages=find_packages(exclude=['tests']),
-    install_requires=['tornado'],
+    install_requires=['tornado', 'graphql-core'],
     platforms='any'
 )

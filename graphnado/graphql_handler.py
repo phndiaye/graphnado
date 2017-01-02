@@ -1,12 +1,17 @@
 import json
 
 import tornado.web
+from graphql import GraphQLSchema
 
 
 GRAPHQL_SUPPORTED_METHODS = ['get', 'post']
 
 
 class GraphQLHandler(tornado.web.RequestHandler):
+    def initialize(self, schema, enable_graphiql=False):
+        if not isinstance(schema, GraphQLSchema):
+            raise TypeError('Schema must be an instance of GraphQLSchema')
+
     def get(self):
         self.write('Hello, World')
 
