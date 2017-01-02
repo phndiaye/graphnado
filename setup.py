@@ -22,7 +22,8 @@ setup(
         'License :: OSI Approved :: MIT License',
     ],
     keywords='api graphql tornado relay',
-    packages=find_packages(exclude=['tests']),
+    packages=find_packages(exclude=['tests']) + ['graphnado/templates'],
+    include_package_data=True,
     install_requires=['tornado', 'graphql-core'],
     platforms='any'
 )
