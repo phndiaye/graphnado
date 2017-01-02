@@ -21,9 +21,6 @@ class GraphQLHandler(tornado.web.RequestHandler):
                 status_code=405,
                 reason='GraphQL only supports GET and POST requests')
 
-    def write_error(self, status_code, **kwargs):
-        kwargs['status_code'] = status_code
-        if status_code == 405:
     def get(self):
         query, variables, id, operation_name = self.graphql_params
         if self.enable_graphiql and self._should_render_graphiql():
@@ -34,7 +31,7 @@ class GraphQLHandler(tornado.web.RequestHandler):
                 self.write(output)
             except Exception as e:
                 raise e
-    def _should_render_graphiql(self):
+
     def _should_render_graphiql(self):
         accept_mimetypes = self.request.headers['Accept'].split(',')
         return True if self._wants_html(accept_mimetypes) else False
