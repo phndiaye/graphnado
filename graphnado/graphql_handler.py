@@ -13,6 +13,8 @@ class GraphQLHandler(tornado.web.RequestHandler):
     def initialize(self, schema, enable_graphiql=False):
         if not isinstance(schema, GraphQLSchema):
             raise TypeError('Schema must be an instance of GraphQLSchema')
+
+        self.schema = schema
         self.enable_graphiql = enable_graphiql
 
     def prepare(self):
