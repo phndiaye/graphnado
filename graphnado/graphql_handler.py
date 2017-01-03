@@ -5,6 +5,7 @@ import tornado.web
 from graphql import GraphQLSchema
 
 from .graphiql_renderer import should_render_graphiql, GraphiQLRenderer
+from .graphql_request_executor import GraphQLRequestExecutor
 
 GRAPHQL_SUPPORTED_METHODS = ['get', 'post']
 
@@ -42,7 +43,13 @@ class GraphQLHandler(tornado.web.RequestHandler):
                 raise e
 
     def post(self):
-        pass
+        result, status_code = self._get_result()
+
+        try:
+            self.set_status(status_code)
+            self.write(result)
+        except Exception as e:
+            raise e
 
     def _parse_body(self, body):
         if re.match(r'application/json', self.request.headers['Accept']):
@@ -59,3 +66,35 @@ class GraphQLHandler(tornado.web.RequestHandler):
             request_body.get('operationName')
         return [query, variables, id, operation_name]
 
+    def _get_result(self):
+        query, variables, id, operation_name = self.graphql_params
+
+        graphql_execution_result = self._execute_graphql_request(
+            query, variables, operation_name
+        )
+
+        return graphql_execution_result
+
+    def _execute_graphql_request(self, query, variables, operation_name):
+        if not query and self.enable_graphiql:
+            raise tornado.web.HTTPError(
+                status_code=400,
+                reason='You must provide GraphiQl with a query string')
+
+        req_executor = GraphQLRequestExecutor(
+            self.schema, query, variables, operation_name)
+        req_result = req_executor.perform()
+
+        status_code = 200
+        if req_result:
+            response = {}
+
+            if req_result.invalid:
+                status_code = 400
+            else:
+                status_code = 200
+                response['data'] = req_result.data
+        else:
+            response = None
+
+        return response, status_code
