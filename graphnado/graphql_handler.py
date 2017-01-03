@@ -23,14 +23,16 @@ class GraphQLHandler(tornado.web.RequestHandler):
                 status_code=405,
                 reason='GraphQL only supports GET and POST requests')
 
+        self.accept_header_mimetypes = self.request.headers['Accept'] \
+            .split(',')
         data = self._parse_body(self.request.body)
         self.graphql_params = self._get_graphql_params(data)
 
     def get(self):
         query, variables, id, operation_name = self.graphql_params
-        accept_header_mimetypes = self.request.headers['Accept'].split(',')
+
         if (self.enable_graphiql and
-                should_render_graphiql(accept_header_mimetypes)):
+                should_render_graphiql(self.accept_header_mimetypes)):
             try:
                 output = GraphiQLRenderer.render(
                     query=query, result=None, variables=variables,
