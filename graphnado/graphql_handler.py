@@ -4,12 +4,9 @@ import re
 import tornado.web
 from graphql import GraphQLSchema
 
-from .graphiql_renderer import GraphiQLRenderer
+from .graphiql_renderer import should_render_graphiql, GraphiQLRenderer
 
 GRAPHQL_SUPPORTED_METHODS = ['get', 'post']
-MARKUP_CONTENT_TYPES = [
-    'text/html', 'application/xhtml+xml', 'application/xml;q=0.9'
-]
 
 
 class GraphQLHandler(tornado.web.RequestHandler):
@@ -29,7 +26,9 @@ class GraphQLHandler(tornado.web.RequestHandler):
 
     def get(self):
         query, variables, id, operation_name = self.graphql_params
-        if self.enable_graphiql and self._should_render_graphiql():
+        accept_header_mimetypes = self.request.headers['Accept'].split(',')
+        if (self.enable_graphiql and
+                should_render_graphiql(accept_header_mimetypes)):
             try:
                 output = GraphiQLRenderer.render(
                     query=query, result=None, variables=variables,
@@ -56,9 +55,3 @@ class GraphQLHandler(tornado.web.RequestHandler):
             request_body.get('operationName')
         return [query, variables, id, operation_name]
 
-    def _should_render_graphiql(self):
-        accept_mimetypes = self.request.headers['Accept'].split(',')
-        return True if self._wants_html(accept_mimetypes) else False
-
-    def _wants_html(self, content_types):
-        return set(MARKUP_CONTENT_TYPES).issubset(content_types)
