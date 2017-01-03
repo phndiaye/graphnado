@@ -1,4 +1,5 @@
 import os
+import json
 
 from tornado import template
 
@@ -11,5 +12,6 @@ class GraphiQLRenderer(object):
         loader = template.Loader(
             os.path.join(os.path.dirname(__file__), 'templates'))
         return loader.load('graphiql.html').generate(
-            graphiql_version=GRAPHIQL_VERSION, query=query,
-            result=result, variables=variables, operation_name=operation_name)
+            graphiql_version=GRAPHIQL_VERSION, query=json.dumps(query),
+            result=json.dumps(result), variables=json.dumps(variables),
+            operation_name=json.dumps(operation_name))

@@ -32,7 +32,7 @@ class GraphQLHandler(tornado.web.RequestHandler):
         if self.enable_graphiql and self._should_render_graphiql():
             try:
                 output = GraphiQLRenderer.render(
-                    query=query, result={}, variables=variables,
+                    query=query, result=None, variables=variables,
                     operation_name=operation_name)
                 self.write(output)
             except Exception as e:
