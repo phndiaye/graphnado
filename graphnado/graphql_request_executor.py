@@ -1,4 +1,5 @@
-from graphql import Source, execute, parse
+from graphql import Source, execute, parse, validate
+from graphql.execution import ExecutionResult
 
 
 class GraphQLRequestExecutor(object):
@@ -9,10 +10,17 @@ class GraphQLRequestExecutor(object):
         self.operation_name = operation_name
 
     def perform(self):
-        return execute(
-            self.schema, self.ast, variable_values=self.variables,
-            operation_name=self.operation_name
-        )
+        try:
+            validation_errors = validate(self.schema, self.ast)
+            if validation_errors:
+                return ExecutionResult(errors=validation_errors, invalid=True)
+
+            return execute(
+                self.schema, self.ast, variable_values=self.variables,
+                operation_name=self.operation_name
+            )
+        except Exception as e:
+            return ExecutionResult(errors=[e], invalid=True)
 
     @property
     def source(self):
